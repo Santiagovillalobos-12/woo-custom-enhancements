@@ -203,3 +203,15 @@ Si tienes problemas o preguntas:
 ---
 
 ⭐ **Si este plugin te ha sido útil, considera darle una estrella en GitHub!**
+
+## 💡 Motivación del Proyecto
+
+Este plugin nació de la necesidad de mejorar significativamente la experiencia de usuario en ecommerce que utilizan únicamente **Elementor + Elementor Pro**. La experiencia base que ofrecen estos constructores de páginas para tiendas online deja mucho que desear en términos de funcionalidad, diseño y usabilidad.
+
+**Woo Custom Enhancements** busca llenar ese vacío proporcionando:
+- **Funcionalidades avanzadas** que no están disponibles en Elementor por defecto
+- **Mejoras visuales** que elevan la calidad del diseño de la tienda
+- **Optimización de rendimiento** para una mejor experiencia de usuario
+- **Plantillas especializadas** para ecommerce que se integran perfectamente con Elementor
+
+El objetivo es permitir que cualquier tienda online construida con Elementor tenga la misma calidad y funcionalidad que una desarrollada con código personalizado, pero de manera simple y accesible.
