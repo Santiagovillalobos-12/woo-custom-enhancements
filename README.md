@@ -168,15 +168,6 @@ add_filter('woocommerce_single_product_carousel_options', function($options) {
 - ✅ Soporte completo para móviles
 - ✅ Lazy loading optimizado
 
-## 🤝 Contribuciones
-
-Las contribuciones son bienvenidas. Para contribuir:
-
-1. **Fork** el repositorio
-2. **Crea una rama** para tu feature (`git checkout -b feature/nueva-funcionalidad`)
-3. **Commit** tus cambios (`git commit -am 'Agregar nueva funcionalidad'`)
-4. **Push** a la rama (`git push origin feature/nueva-funcionalidad`)
-5. **Crea un Pull Request**
 
 ## 📄 Licencia
 
@@ -192,13 +183,6 @@ Este proyecto está bajo la Licencia GPL2. Ver el archivo `LICENSE` para más de
 - **WooCommerce** por la excelente base de ecommerce
 - **Elementor** por el sistema de plantillas
 - **WordPress** por la plataforma
-
-## 📞 Soporte
-
-Si tienes problemas o preguntas:
-1. **Revisa** la sección de solución de problemas
-2. **Busca** en los issues de GitHub
-3. **Crea un nuevo issue** si no encuentras la solución
 
 ---
 
