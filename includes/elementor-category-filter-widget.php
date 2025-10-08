@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Widget de Elementor para Filtro de Categorías
  * Archivo: includes/elementor-category-filter-widget.php
@@ -6,30 +7,37 @@
 
 if (!defined('ABSPATH')) exit;
 
-class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base {
+class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base
+{
 
-    public function get_name() { 
-        return 'category_filter_horizontal'; 
-    }
-    
-    public function get_title() { 
-        return esc_html__('Filtro de Categorías', 'woo-custom-enhancements'); 
-    }
-    
-    public function get_icon() { 
-        return 'eicon-filter'; 
-    }
-    
-    public function get_categories() { 
-        return ['general', 'woocommerce-elements']; 
-    }
-    
-    public function get_keywords() { 
-        return ['categorías', 'filtro', 'woocommerce', 'productos', 'shop']; 
+    public function get_name()
+    {
+        return 'category_filter_horizontal';
     }
 
-    protected function register_controls() {
-        
+    public function get_title()
+    {
+        return esc_html__('Filtro de Categorías', 'woo-custom-enhancements');
+    }
+
+    public function get_icon()
+    {
+        return 'eicon-filter';
+    }
+
+    public function get_categories()
+    {
+        return ['general', 'woocommerce-elements'];
+    }
+
+    public function get_keywords()
+    {
+        return ['categorías', 'filtro', 'woocommerce', 'productos', 'shop'];
+    }
+
+    protected function register_controls()
+    {
+
         // Sección de Contenido
         $this->start_controls_section(
             'content_section',
@@ -226,9 +234,10 @@ class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base {
         $this->end_controls_section();
     }
 
-    protected function render() {
+    protected function render()
+    {
         $settings = $this->get_settings_for_display();
-        
+
         if (!is_shop() && !is_product_category()) {
             return;
         }
@@ -248,14 +257,14 @@ class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base {
         $show_all = $settings['show_all_option'] === 'yes';
         $all_text = $settings['all_option_text'] ?: 'Todas';
         $show_count = $settings['show_product_count'] === 'yes';
-        ?>
-        
+?>
+
         <div class="category-filter-horizontal-wrapper">
             <div class="category-filter-horizontal">
-                
+
                 <?php if ($show_all): ?>
-                    <div class="category-item <?php echo !is_product_category() ? 'active' : ''; ?>" 
-                         data-category="0">
+                    <div class="category-item <?php echo !is_product_category() ? 'active' : ''; ?>"
+                        data-category="0">
                         <span class="category-name"><?php echo esc_html($all_text); ?></span>
                         <?php if ($show_count): ?>
                             <span class="category-count"><?php echo wp_count_posts('product')->publish; ?></span>
@@ -263,19 +272,19 @@ class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base {
                     </div>
                 <?php endif; ?>
 
-                <?php foreach ($categories as $category): 
+                <?php foreach ($categories as $category):
                     $subcategories = get_terms([
                         'taxonomy' => 'product_cat',
                         'hide_empty' => true,
                         'parent' => $category->term_id,
                     ]);
-                    
+
                     $has_subs = !empty($subcategories) && !is_wp_error($subcategories);
                     $is_active = is_product_category() && get_queried_object_id() == $category->term_id;
                 ?>
-                    <div class="category-item <?php echo $is_active ? 'active' : ''; ?> <?php echo $has_subs ? 'has-subcategories' : ''; ?>" 
-                         data-category="<?php echo esc_attr($category->term_id); ?>">
-                        
+                    <div class="category-item <?php echo $is_active ? 'active' : ''; ?> <?php echo $has_subs ? 'has-subcategories' : ''; ?>"
+                        data-category="<?php echo esc_attr($category->term_id); ?>">
+
                         <div class="category-main">
                             <span class="category-name"><?php echo esc_html($category->name); ?></span>
                             <?php if ($show_count): ?>
@@ -307,195 +316,272 @@ class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base {
         </div>
 
         <style>
-        .category-filter-horizontal-wrapper {
-            margin: 20px 0 30px 0;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            overflow: visible !important;
-            position: relative;
-            z-index: 1000;
-        }
-        .category-filter-horizontal {
-            display: flex;
-            overflow-x: auto;
-            overflow-y: visible !important;
-            scrollbar-width: thin;
-            scrollbar-color: #ddd transparent;
-        }
-        
-        /* Forzar que todos los contenedores padre permitan overflow visible */
-        .elementor-widget-category_filter_horizontal {
-            overflow: visible !important;
-        }
-        
-        .elementor-widget-category_filter_horizontal .elementor-widget-container {
-            overflow: visible !important;
-        }
-        
-        .elementor-widget-category_filter_horizontal .elementor-widget-container * {
-            overflow: visible !important;
-        }
-        
-        /* Asegurar que el contenedor del filtro permita que los dropdowns se vean */
-        .category-filter-horizontal-wrapper,
-        .category-filter-horizontal,
-        .category-item {
-            overflow: visible !important;
-        }
-        .category-filter-horizontal::-webkit-scrollbar { height: 6px; }
-        .category-filter-horizontal::-webkit-scrollbar-track { background: #f1f1f1; }
-        .category-filter-horizontal::-webkit-scrollbar-thumb { background: #ddd; border-radius: 3px; }
-        .category-item {
-            position: relative;
-            flex-shrink: 0;
-            min-width: 160px;
-            padding: 20px 25px;
-            cursor: pointer;
-            transition: all 0.3s;
-            border-right: 1px solid #f0f0f0;
-            background: #fff;
-            text-align: center;
-        }
-        .category-item:hover { background: #f8f9fa; }
-        .category-item.active {
-            background: #007cba;
-            color: #fff;
-        }
-        .category-item.active .category-name,
-        .category-item.active .category-count { color: #fff; }
-        .category-name {
-            display: block;
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 5px;
-            color: #333;
-            text-transform: uppercase;
-        }
-        .category-count {
-            display: block;
-            font-size: 12px;
-            color: #666;
-        }
-        .subcategories-dropdown {
-            position: absolute;
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: all 0.3s;
-            z-index: 99999;
-            max-height: 400px;
-            overflow-y: auto;
-            min-width: 200px;
-            top: 100%;
-            left: 0;
-        }
-        .subcategories-dropdown.active {
-            opacity: 1 !important;
-            visibility: visible !important;
-            transform: translateY(0) !important;
-        }
-        .subcategory-item {
-            padding: 12px 20px;
-            cursor: pointer;
-            transition: background 0.2s;
-            border-bottom: 1px solid #f0f0f0;
-            display: flex;
-            justify-content: space-between;
-        }
-        .subcategory-item:hover { background: #f8f9fa; }
-        .subcategory-name {
-            font-size: 14px;
-            font-weight: 500;
-            color: #333;
-        }
-        .subcategory-count {
-            font-size: 11px;
-            color: #666;
-            background: #f0f0f0;
-            padding: 2px 8px;
-            border-radius: 10px;
-        }
-        .category-filter-loading {
-            opacity: 0.6;
-            pointer-events: none;
-        }
-        .category-filter-loading::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 20px;
-            height: 20px;
-            margin: -10px 0 0 -10px;
-            border: 2px solid #f3f3f3;
-            border-top: 2px solid #007cba;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        @media (max-width: 768px) {
-            .category-item {
-                min-width: 140px;
-                padding: 15px 20px;
+            .category-filter-horizontal-wrapper {
+                margin: 20px 0 30px 0;
+                background: #fff;
+                border-radius: 8px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                overflow: visible !important;
+                position: relative;
+                z-index: 1000;
             }
-            .category-name { font-size: 14px; }
-        }
+
+            .category-filter-horizontal {
+                display: flex;
+                overflow-x: auto;
+                overflow-y: visible !important;
+                scrollbar-width: thin;
+                scrollbar-color: #ddd transparent;
+            }
+
+            /* Forzar que todos los contenedores padre permitan overflow visible */
+            .elementor-widget-category_filter_horizontal {
+                overflow: visible !important;
+            }
+
+            .elementor-widget-category_filter_horizontal .elementor-widget-container {
+                overflow: visible !important;
+            }
+
+            .elementor-widget-category_filter_horizontal .elementor-widget-container * {
+                overflow: visible !important;
+            }
+
+            /* Asegurar que el contenedor del filtro permita que los dropdowns se vean */
+            .category-filter-horizontal-wrapper,
+            .category-filter-horizontal,
+            .category-item {
+                overflow: visible !important;
+            }
+
+            .category-filter-horizontal::-webkit-scrollbar {
+                height: 6px;
+            }
+
+            .category-filter-horizontal::-webkit-scrollbar-track {
+                background: #f1f1f1;
+            }
+
+            .category-filter-horizontal::-webkit-scrollbar-thumb {
+                background: #ddd;
+                border-radius: 3px;
+            }
+
+            .category-item {
+                position: relative;
+                flex-shrink: 0;
+                min-width: 160px;
+                padding: 20px 25px;
+                cursor: pointer;
+                transition: all 0.3s;
+                border-right: 1px solid #f0f0f0;
+                background: #fff;
+                text-align: center;
+            }
+
+            .category-item:hover {
+                background: #f8f9fa;
+            }
+
+            .category-item.active {
+                background: #007cba;
+                color: #fff;
+            }
+
+            .category-item.active .category-name,
+            .category-item.active .category-count {
+                color: #fff;
+            }
+
+            .category-name {
+                display: block;
+                font-size: 16px;
+                font-weight: 600;
+                margin-bottom: 5px;
+                color: #333;
+                text-transform: uppercase;
+            }
+
+            .category-count {
+                display: block;
+                font-size: 12px;
+                color: #666;
+            }
+
+            .subcategories-dropdown {
+                position: absolute;
+                background: #fff;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+                opacity: 0;
+                visibility: hidden;
+                transform: translateY(-10px);
+                transition: all 0.3s;
+                z-index: 99999;
+                max-height: 400px;
+                overflow-y: auto;
+                min-width: 200px;
+                top: 100%;
+                left: 0;
+            }
+
+            .subcategories-dropdown.active {
+                opacity: 1 !important;
+                visibility: visible !important;
+                transform: translateY(0) !important;
+            }
+
+            .subcategory-item {
+                padding: 12px 20px;
+                cursor: pointer;
+                transition: background 0.2s;
+                border-bottom: 1px solid #f0f0f0;
+                display: flex;
+                justify-content: space-between;
+            }
+
+            .subcategory-item:hover {
+                background: #f8f9fa;
+            }
+
+            .subcategory-name {
+                font-size: 14px;
+                font-weight: 500;
+                color: #333;
+            }
+
+            .subcategory-count {
+                font-size: 11px;
+                color: #666;
+                background: #f0f0f0;
+                padding: 2px 8px;
+                border-radius: 10px;
+            }
+
+            .category-filter-loading {
+                opacity: 0.6;
+                pointer-events: none;
+            }
+
+            .category-filter-loading::after {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 20px;
+                height: 20px;
+                margin: -10px 0 0 -10px;
+                border: 2px solid #f3f3f3;
+                border-top: 2px solid #007cba;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+            }
+
+            @keyframes spin {
+                0% {
+                    transform: rotate(0deg);
+                }
+
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+
+            @media (max-width: 768px) {
+                .category-item {
+                    min-width: 140px;
+                    padding: 15px 20px;
+                }
+
+                .category-name {
+                    font-size: 14px;
+                }
+            }
         </style>
 
         <script>
-        jQuery(document).ready(function($) {
-            $('.category-item, .subcategory-item').on('click', function(e) {
-                e.preventDefault();
-                var categoryId = $(this).data('category');
-                var $wrapper = $('.category-filter-horizontal-wrapper');
-                $wrapper.addClass('category-filter-loading');
-                
-                $.ajax({
-                    url: '<?php echo admin_url('admin-ajax.php'); ?>',
-                    type: 'POST',
-                    data: {
-                        action: 'filter_products_by_category',
-                        category_id: categoryId,
-                        nonce: '<?php echo wp_create_nonce('category_filter_nonce'); ?>'
-                    },
-                    success: function(response) {
-                        if (response.success && response.data.url) {
-                            window.location.href = response.data.url;
+            jQuery(document).ready(function($) {
+                var hoverTimeout;
+                var isHoveringDropdown = false;
+
+                function filterByCategory(categoryId) {
+                    var $wrapper = $('.category-filter-horizontal-wrapper');
+                    $wrapper.addClass('category-filter-loading');
+
+                    $.ajax({
+                        url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                        type: 'POST',
+                        data: {
+                            action: 'filter_products_by_category',
+                            category_id: categoryId,
+                            nonce: '<?php echo wp_create_nonce('category_filter_nonce'); ?>'
+                        },
+                        success: function(response) {
+                            if (response.success && response.data.url) {
+                                window.location.href = response.data.url;
+                            }
+                        },
+                        error: function() {
+                            $wrapper.removeClass('category-filter-loading');
                         }
-                    },
-                    error: function() {
-                        $wrapper.removeClass('category-filter-loading');
-                    }
+                    });
+                }
+
+                // Click en subcategorías del dropdown
+                $('.subcategory-item').on('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    var categoryId = $(this).data('category');
+                    filterByCategory(categoryId);
+                });
+
+                // Click en categorías principales (solo en el área del texto, no en todo el item)
+                $('.category-item .category-main').on('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    var categoryId = $(this).parent().data('category');
+                    filterByCategory(categoryId);
+                });
+
+                // Click en categorías sin subcategorías
+                $('.category-item:not(.has-subcategories)').on('click', function(e) {
+                    e.preventDefault();
+                    var categoryId = $(this).data('category');
+                    filterByCategory(categoryId);
+                });
+
+                // Hover para mostrar dropdown
+                $('.category-item.has-subcategories').on('mouseenter', function() {
+                    clearTimeout(hoverTimeout);
+                    var $dropdown = $(this).find('.subcategories-dropdown');
+                    $('.subcategories-dropdown').removeClass('active');
+                    $dropdown.addClass('active');
+                    isHoveringDropdown = false;
+                }).on('mouseleave', function() {
+                    var $dropdown = $(this).find('.subcategories-dropdown');
+
+                    hoverTimeout = setTimeout(function() {
+                        if (!isHoveringDropdown) {
+                            $dropdown.removeClass('active');
+                        }
+                    }, 300);
+                });
+
+                $('.subcategories-dropdown').on('mouseenter', function() {
+                    clearTimeout(hoverTimeout);
+                    isHoveringDropdown = true;
+                    $(this).addClass('active');
+                }).on('mouseleave', function() {
+                    isHoveringDropdown = false;
+                    var self = this;
+
+                    hoverTimeout = setTimeout(function() {
+                        $(self).removeClass('active');
+                    }, 100);
                 });
             });
-            
-            $('.category-item.has-subcategories').on('mouseenter', function() {
-                var $dropdown = $(this).find('.subcategories-dropdown');
-                $('.subcategories-dropdown').removeClass('active');
-                $dropdown.addClass('active');
-            }).on('mouseleave', function() {
-                var $dropdown = $(this).find('.subcategories-dropdown');
-                setTimeout(function() {
-                    if (!$dropdown.is(':hover')) {
-                        $dropdown.removeClass('active');
-                    }
-                }, 200);
-            });
-            
-            $('.subcategories-dropdown').hover(
-                function() { $(this).addClass('active'); },
-                function() { $(this).removeClass('active'); }
-            );
-        });
         </script>
-        <?php
+<?php
     }
 }
