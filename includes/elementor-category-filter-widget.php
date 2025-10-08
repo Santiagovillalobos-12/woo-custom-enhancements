@@ -183,27 +183,28 @@ class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base
             ]
         );
 
-        $this->add_responsive_control(
-            'item_gap',
-            [
-                'label' => esc_html__('Espacio entre items', 'woo-custom-enhancements'),
-                'type' => \Elementor\Controls_Manager::SLIDER,
-                'size_units' => ['px'],
-                'range' => [
-                    'px' => [
-                        'min' => 0,
-                        'max' => 50,
-                    ],
-                ],
-                'default' => [
-                    'unit' => 'px',
-                    'size' => 10,
-                ],
-                'selectors' => [
-                    '{{WRAPPER}} .category-filter-horizontal' => 'gap: {{SIZE}}{{UNIT}};',
-                ],
-            ]
-        );
+         $this->add_responsive_control(
+             'item_gap',
+             [
+                 'label' => esc_html__('Espacio entre items', 'woo-custom-enhancements'),
+                 'type' => \Elementor\Controls_Manager::SLIDER,
+                 'size_units' => ['px'],
+                 'range' => [
+                     'px' => [
+                         'min' => 0,
+                         'max' => 50,
+                     ],
+                 ],
+                 'default' => [
+                     'unit' => 'px',
+                     'size' => 10,
+                 ],
+                 'selectors' => [
+                     '{{WRAPPER}} .category-filter-horizontal' => 'gap: {{SIZE}}{{UNIT}};',
+                 ],
+             ]
+         );
+
 
         $this->add_control(
             'item_border_radius',
@@ -520,58 +521,440 @@ class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base
 
         $this->end_controls_section();
 
-        // ============ ESTILO - DROPDOWN ============
-        $this->start_controls_section(
-            'dropdown_style_section',
-            [
-                'label' => esc_html__('Menú Desplegable', 'woo-custom-enhancements'),
-                'tab' => \Elementor\Controls_Manager::TAB_STYLE,
-            ]
-        );
+         // ============ ESTILO - DROPDOWN ============
+         $this->start_controls_section(
+             'dropdown_style_section',
+             [
+                 'label' => esc_html__('Menú Desplegable', 'woo-custom-enhancements'),
+                 'tab' => \Elementor\Controls_Manager::TAB_STYLE,
+             ]
+         );
 
-        $this->add_control(
-            'dropdown_background',
-            [
-                'label' => esc_html__('Fondo', 'woo-custom-enhancements'),
-                'type' => \Elementor\Controls_Manager::COLOR,
-                'default' => '#ffffff',
-                'selectors' => [
-                    '{{WRAPPER}} .subcategories-dropdown' => 'background-color: {{VALUE}};',
-                ],
-            ]
-        );
+         $this->add_control(
+             'dropdown_background',
+             [
+                 'label' => esc_html__('Fondo', 'woo-custom-enhancements'),
+                 'type' => \Elementor\Controls_Manager::COLOR,
+                 'default' => '#ffffff',
+                 'selectors' => [
+                     '{{WRAPPER}} .subcategories-dropdown' => 'background-color: {{VALUE}};',
+                 ],
+             ]
+         );
 
-        $this->add_group_control(
-            \Elementor\Group_Control_Border::get_type(),
-            [
-                'name' => 'dropdown_border',
-                'label' => esc_html__('Borde', 'woo-custom-enhancements'),
-                'selector' => '{{WRAPPER}} .subcategories-dropdown',
-            ]
-        );
+         $this->add_responsive_control(
+             'dropdown_padding',
+             [
+                 'label' => esc_html__('Relleno interno', 'woo-custom-enhancements'),
+                 'type' => \Elementor\Controls_Manager::DIMENSIONS,
+                 'size_units' => ['px', '%', 'em'],
+                 'default' => [
+                     'top' => '8',
+                     'right' => '0',
+                     'bottom' => '8',
+                     'left' => '0',
+                     'unit' => 'px',
+                 ],
+                 'selectors' => [
+                     '{{WRAPPER}} .subcategories-dropdown' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                 ],
+             ]
+         );
 
-        $this->add_control(
-            'dropdown_border_radius',
-            [
-                'label' => esc_html__('Radio del borde', 'woo-custom-enhancements'),
-                'type' => \Elementor\Controls_Manager::DIMENSIONS,
-                'size_units' => ['px', '%'],
-                'selectors' => [
-                    '{{WRAPPER}} .subcategories-dropdown' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
-                ],
-            ]
-        );
+         $this->add_control(
+             'dropdown_min_width',
+             [
+                 'label' => esc_html__('Ancho mínimo', 'woo-custom-enhancements'),
+                 'type' => \Elementor\Controls_Manager::SLIDER,
+                 'size_units' => ['px'],
+                 'range' => [
+                     'px' => [
+                         'min' => 150,
+                         'max' => 400,
+                     ],
+                 ],
+                 'default' => [
+                     'unit' => 'px',
+                     'size' => 200,
+                 ],
+                 'selectors' => [
+                     '{{WRAPPER}} .subcategories-dropdown' => 'min-width: {{SIZE}}{{UNIT}};',
+                 ],
+             ]
+         );
 
-        $this->add_group_control(
-            \Elementor\Group_Control_Box_Shadow::get_type(),
-            [
-                'name' => 'dropdown_box_shadow',
-                'label' => esc_html__('Sombra', 'woo-custom-enhancements'),
-                'selector' => '{{WRAPPER}} .subcategories-dropdown',
-            ]
-        );
+         $this->add_control(
+             'dropdown_max_height',
+             [
+                 'label' => esc_html__('Altura máxima', 'woo-custom-enhancements'),
+                 'type' => \Elementor\Controls_Manager::SLIDER,
+                 'size_units' => ['px', 'vh'],
+                 'range' => [
+                     'px' => [
+                         'min' => 200,
+                         'max' => 600,
+                     ],
+                     'vh' => [
+                         'min' => 20,
+                         'max' => 80,
+                     ],
+                 ],
+                 'default' => [
+                     'unit' => 'px',
+                     'size' => 400,
+                 ],
+                 'selectors' => [
+                     '{{WRAPPER}} .subcategories-dropdown' => 'max-height: {{SIZE}}{{UNIT}};',
+                 ],
+             ]
+         );
 
-        $this->end_controls_section();
+         $this->add_group_control(
+             \Elementor\Group_Control_Border::get_type(),
+             [
+                 'name' => 'dropdown_border',
+                 'label' => esc_html__('Borde', 'woo-custom-enhancements'),
+                 'selector' => '{{WRAPPER}} .subcategories-dropdown',
+             ]
+         );
+
+         $this->add_control(
+             'dropdown_border_radius',
+             [
+                 'label' => esc_html__('Radio del borde', 'woo-custom-enhancements'),
+                 'type' => \Elementor\Controls_Manager::DIMENSIONS,
+                 'size_units' => ['px', '%'],
+                 'default' => [
+                     'top' => '8',
+                     'right' => '8',
+                     'bottom' => '8',
+                     'left' => '8',
+                     'unit' => 'px',
+                 ],
+                 'selectors' => [
+                     '{{WRAPPER}} .subcategories-dropdown' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                 ],
+             ]
+         );
+
+         $this->add_group_control(
+             \Elementor\Group_Control_Box_Shadow::get_type(),
+             [
+                 'name' => 'dropdown_box_shadow',
+                 'label' => esc_html__('Sombra', 'woo-custom-enhancements'),
+                 'selector' => '{{WRAPPER}} .subcategories-dropdown',
+             ]
+         );
+
+         $this->end_controls_section();
+
+         // ============ ESTILO - ITEMS DEL DROPDOWN ============
+         $this->start_controls_section(
+             'dropdown_item_style_section',
+             [
+                 'label' => esc_html__('Items del Dropdown', 'woo-custom-enhancements'),
+                 'tab' => \Elementor\Controls_Manager::TAB_STYLE,
+             ]
+         );
+
+         $this->add_responsive_control(
+             'dropdown_item_padding',
+             [
+                 'label' => esc_html__('Relleno del item', 'woo-custom-enhancements'),
+                 'type' => \Elementor\Controls_Manager::DIMENSIONS,
+                 'size_units' => ['px', '%', 'em'],
+                 'default' => [
+                     'top' => '12',
+                     'right' => '20',
+                     'bottom' => '12',
+                     'left' => '20',
+                     'unit' => 'px',
+                 ],
+                 'selectors' => [
+                     '{{WRAPPER}} .subcategory-item' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                 ],
+             ]
+         );
+
+         $this->add_control(
+             'dropdown_item_border_bottom',
+             [
+                 'label' => esc_html__('Borde inferior', 'woo-custom-enhancements'),
+                 'type' => \Elementor\Controls_Manager::SWITCHER,
+                 'label_on' => esc_html__('Sí', 'woo-custom-enhancements'),
+                 'label_off' => esc_html__('No', 'woo-custom-enhancements'),
+                 'return_value' => 'yes',
+                 'default' => 'yes',
+                 'selectors' => [
+                     '{{WRAPPER}} .subcategory-item' => 'border-bottom: 1px solid #f5f5f5;',
+                     '{{WRAPPER}} .subcategory-item:last-child' => 'border-bottom: none;',
+                 ],
+             ]
+         );
+
+         $this->add_control(
+             'dropdown_item_border_color',
+             [
+                 'label' => esc_html__('Color del borde', 'woo-custom-enhancements'),
+                 'type' => \Elementor\Controls_Manager::COLOR,
+                 'default' => '#f5f5f5',
+                 'condition' => [
+                     'dropdown_item_border_bottom' => 'yes',
+                 ],
+                 'selectors' => [
+                     '{{WRAPPER}} .subcategory-item' => 'border-bottom-color: {{VALUE}};',
+                 ],
+             ]
+         );
+
+         // Tabs para estados del item del dropdown
+         $this->start_controls_tabs('dropdown_item_style_tabs');
+
+         // TAB NORMAL
+         $this->start_controls_tab(
+             'dropdown_item_normal_tab',
+             [
+                 'label' => esc_html__('Normal', 'woo-custom-enhancements'),
+             ]
+         );
+
+         $this->add_control(
+             'dropdown_item_background',
+             [
+                 'label' => esc_html__('Color de fondo', 'woo-custom-enhancements'),
+                 'type' => \Elementor\Controls_Manager::COLOR,
+                 'default' => '#ffffff',
+                 'selectors' => [
+                     '{{WRAPPER}} .subcategory-item' => 'background-color: {{VALUE}};',
+                 ],
+             ]
+         );
+
+         $this->end_controls_tab();
+
+         // TAB HOVER
+         $this->start_controls_tab(
+             'dropdown_item_hover_tab',
+             [
+                 'label' => esc_html__('Hover', 'woo-custom-enhancements'),
+             ]
+         );
+
+         $this->add_control(
+             'dropdown_item_background_hover',
+             [
+                 'label' => esc_html__('Color de fondo', 'woo-custom-enhancements'),
+                 'type' => \Elementor\Controls_Manager::COLOR,
+                 'default' => '#f8f9fa',
+                 'selectors' => [
+                     '{{WRAPPER}} .subcategory-item:hover' => 'background-color: {{VALUE}};',
+                 ],
+             ]
+         );
+
+         $this->end_controls_tab();
+
+         $this->end_controls_tabs();
+
+         $this->end_controls_section();
+
+         // ============ ESTILO - TEXTO DEL DROPDOWN ============
+         $this->start_controls_section(
+             'dropdown_text_style_section',
+             [
+                 'label' => esc_html__('Texto del Dropdown', 'woo-custom-enhancements'),
+                 'tab' => \Elementor\Controls_Manager::TAB_STYLE,
+             ]
+         );
+
+         $this->add_group_control(
+             \Elementor\Group_Control_Typography::get_type(),
+             [
+                 'name' => 'dropdown_text_typography',
+                 'label' => esc_html__('Tipografía del nombre', 'woo-custom-enhancements'),
+                 'selector' => '{{WRAPPER}} .subcategory-name',
+                 'default' => [
+                     'font_size' => '14',
+                     'font_weight' => '500',
+                 ],
+             ]
+         );
+
+         // Tabs para colores del texto del dropdown
+         $this->start_controls_tabs('dropdown_text_color_tabs');
+
+         $this->start_controls_tab(
+             'dropdown_text_normal_tab',
+             [
+                 'label' => esc_html__('Normal', 'woo-custom-enhancements'),
+             ]
+         );
+
+         $this->add_control(
+             'dropdown_text_color',
+             [
+                 'label' => esc_html__('Color del nombre', 'woo-custom-enhancements'),
+                 'type' => \Elementor\Controls_Manager::COLOR,
+                 'default' => '#333333',
+                 'selectors' => [
+                     '{{WRAPPER}} .subcategory-name' => 'color: {{VALUE}};',
+                 ],
+             ]
+         );
+
+         $this->end_controls_tab();
+
+         $this->start_controls_tab(
+             'dropdown_text_hover_tab',
+             [
+                 'label' => esc_html__('Hover', 'woo-custom-enhancements'),
+             ]
+         );
+
+         $this->add_control(
+             'dropdown_text_color_hover',
+             [
+                 'label' => esc_html__('Color del nombre', 'woo-custom-enhancements'),
+                 'type' => \Elementor\Controls_Manager::COLOR,
+                 'default' => '#007cba',
+                 'selectors' => [
+                     '{{WRAPPER}} .subcategory-item:hover .subcategory-name' => 'color: {{VALUE}};',
+                 ],
+             ]
+         );
+
+         $this->end_controls_tab();
+
+         $this->end_controls_tabs();
+
+         $this->end_controls_section();
+
+         // ============ ESTILO - CONTADOR DEL DROPDOWN ============
+         $this->start_controls_section(
+             'dropdown_counter_style_section',
+             [
+                 'label' => esc_html__('Contador del Dropdown', 'woo-custom-enhancements'),
+                 'tab' => \Elementor\Controls_Manager::TAB_STYLE,
+                 'condition' => [
+                     'show_product_count' => 'yes',
+                 ],
+             ]
+         );
+
+         $this->add_group_control(
+             \Elementor\Group_Control_Typography::get_type(),
+             [
+                 'name' => 'dropdown_counter_typography',
+                 'label' => esc_html__('Tipografía del contador', 'woo-custom-enhancements'),
+                 'selector' => '{{WRAPPER}} .subcategory-count',
+                 'default' => [
+                     'font_size' => '11',
+                     'font_weight' => '400',
+                 ],
+             ]
+         );
+
+         $this->add_control(
+             'dropdown_counter_background',
+             [
+                 'label' => esc_html__('Fondo del contador', 'woo-custom-enhancements'),
+                 'type' => \Elementor\Controls_Manager::COLOR,
+                 'default' => '#f0f0f0',
+                 'selectors' => [
+                     '{{WRAPPER}} .subcategory-count' => 'background-color: {{VALUE}};',
+                 ],
+             ]
+         );
+
+         $this->add_control(
+             'dropdown_counter_border_radius',
+             [
+                 'label' => esc_html__('Radio del borde', 'woo-custom-enhancements'),
+                 'type' => \Elementor\Controls_Manager::SLIDER,
+                 'size_units' => ['px', '%'],
+                 'range' => [
+                     'px' => [
+                         'min' => 0,
+                         'max' => 50,
+                     ],
+                 ],
+                 'default' => [
+                     'unit' => 'px',
+                     'size' => 12,
+                 ],
+                 'selectors' => [
+                     '{{WRAPPER}} .subcategory-count' => 'border-radius: {{SIZE}}{{UNIT}};',
+                 ],
+             ]
+         );
+
+         $this->add_responsive_control(
+             'dropdown_counter_padding',
+             [
+                 'label' => esc_html__('Relleno del contador', 'woo-custom-enhancements'),
+                 'type' => \Elementor\Controls_Manager::DIMENSIONS,
+                 'size_units' => ['px', '%', 'em'],
+                 'default' => [
+                     'top' => '3',
+                     'right' => '10',
+                     'bottom' => '3',
+                     'left' => '10',
+                     'unit' => 'px',
+                 ],
+                 'selectors' => [
+                     '{{WRAPPER}} .subcategory-count' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                 ],
+             ]
+         );
+
+         // Tabs para colores del contador del dropdown
+         $this->start_controls_tabs('dropdown_counter_color_tabs');
+
+         $this->start_controls_tab(
+             'dropdown_counter_normal_tab',
+             [
+                 'label' => esc_html__('Normal', 'woo-custom-enhancements'),
+             ]
+         );
+
+         $this->add_control(
+             'dropdown_counter_color',
+             [
+                 'label' => esc_html__('Color del contador', 'woo-custom-enhancements'),
+                 'type' => \Elementor\Controls_Manager::COLOR,
+                 'default' => '#666666',
+                 'selectors' => [
+                     '{{WRAPPER}} .subcategory-count' => 'color: {{VALUE}};',
+                 ],
+             ]
+         );
+
+         $this->end_controls_tab();
+
+         $this->start_controls_tab(
+             'dropdown_counter_hover_tab',
+             [
+                 'label' => esc_html__('Hover', 'woo-custom-enhancements'),
+             ]
+         );
+
+         $this->add_control(
+             'dropdown_counter_color_hover',
+             [
+                 'label' => esc_html__('Color del contador', 'woo-custom-enhancements'),
+                 'type' => \Elementor\Controls_Manager::COLOR,
+                 'default' => '#007cba',
+                 'selectors' => [
+                     '{{WRAPPER}} .subcategory-item:hover .subcategory-count' => 'color: {{VALUE}};',
+                 ],
+             ]
+         );
+
+         $this->end_controls_tab();
+
+         $this->end_controls_tabs();
+
+         $this->end_controls_section();
     }
 
     protected function render()
@@ -599,8 +982,8 @@ class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base
         $show_count = $settings['show_product_count'] === 'yes';
 ?>
 
-        <div class="category-filter-horizontal-wrapper">
-            <div class="category-filter-horizontal">
+         <div class="category-filter-horizontal-wrapper">
+             <div class="category-filter-horizontal">
 
                 <?php if ($show_all): ?>
                     <div class="category-item <?php echo !is_product_category() ? 'active' : ''; ?>"
@@ -656,44 +1039,45 @@ class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base
         </div>
 
         <style>
-            /* Permitir overflow visible en todos los contenedores */
-            .elementor-widget-category_filter_horizontal,
-            .elementor-widget-category_filter_horizontal .elementor-widget-container,
-            .elementor-widget-category_filter_horizontal .elementor-widget-container * {
-                overflow: visible !important;
-            }
+             /* Permitir overflow visible en todos los contenedores */
+             .elementor-widget-category_filter_horizontal,
+             .elementor-widget-category_filter_horizontal .elementor-widget-container,
+             .elementor-widget-category_filter_horizontal .elementor-widget-container * {
+                 overflow: visible !important;
+             }
 
-            .category-filter-horizontal-wrapper {
-                background: #fff;
-                border-radius: 50px;
-                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-                overflow: visible !important;
-                position: relative;
-                z-index: 1000;
-            }
+             .category-filter-horizontal-wrapper {
+                 background: #fff;
+                 border-radius: 50px;
+                 box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+                 overflow: visible !important;
+                 position: relative;
+                 z-index: 1000;
+             }
 
-            .category-filter-horizontal {
-                display: flex;
-                align-items: center;
-                overflow-x: auto;
-                overflow-y: visible !important;
-                scrollbar-width: thin;
-                scrollbar-color: #ddd transparent;
-                gap: 10px;
-            }
+             .category-filter-horizontal {
+                 display: flex;
+                 align-items: center;
+                 overflow-x: auto;
+                 overflow-y: visible !important;
+                 gap: 10px;
+                 scrollbar-width: thin;
+                 scrollbar-color: #ddd transparent;
+                 flex-wrap: nowrap;
+             }
 
-            .category-filter-horizontal::-webkit-scrollbar {
-                height: 4px;
-            }
+             .category-filter-horizontal::-webkit-scrollbar {
+                 height: 4px;
+             }
 
-            .category-filter-horizontal::-webkit-scrollbar-track {
-                background: transparent;
-            }
+             .category-filter-horizontal::-webkit-scrollbar-track {
+                 background: transparent;
+             }
 
-            .category-filter-horizontal::-webkit-scrollbar-thumb {
-                background: #ddd;
-                border-radius: 4px;
-            }
+             .category-filter-horizontal::-webkit-scrollbar-thumb {
+                 background: #ddd;
+                 border-radius: 4px;
+             }
 
             .category-item {
                 position: relative;
@@ -810,15 +1194,34 @@ class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base
                 }
             }
 
-            @media (max-width: 768px) {
-                .category-filter-horizontal-wrapper {
-                    border-radius: 30px;
-                }
+             @media (max-width: 768px) {
+                 .category-filter-horizontal-wrapper {
+                     border-radius: 30px;
+                 }
 
-                .category-name {
-                    font-size: 13px;
-                }
-            }
+                 .category-name {
+                     font-size: 13px;
+                 }
+
+                 .category-item {
+                     min-width: 120px;
+                 }
+             }
+
+             @media (max-width: 480px) {
+                 .category-item {
+                     min-width: 100px;
+                     padding: 8px 12px;
+                 }
+
+                 .category-name {
+                     font-size: 12px;
+                 }
+
+                 .category-count {
+                     font-size: 10px;
+                 }
+             }
         </style>
 
         <script>
