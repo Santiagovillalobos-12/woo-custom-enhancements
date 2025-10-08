@@ -123,125 +123,145 @@ class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base
         </div>
 
         <style>
-           
+            /* Reset importante para Elementor */
+            .elementor-widget-category_filter_horizontal {
+                overflow: visible !important;
+            }
+
+            .elementor-widget-category_filter_horizontal .elementor-widget-container {
+                overflow: visible !important;
+            }
+
             .category-filter-horizontal-wrapper {
                 background: #fff;
-                border-radius: 50px;
-                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+                border-radius: 16px;
+                box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
                 position: relative;
                 z-index: 1000;
-                padding: 8px 12px;
+                padding: 8px;
                 width: 100%;
                 box-sizing: border-box;
             }
 
             .category-filter-horizontal {
-                width: 100% !important;
-                display: flex;
-                flex-wrap: nowrap;
-                overflow: scroll !important;
-                align-items: center;
-                
-                overflow-y: visible !important;
-                gap: none !important;
-                scrollbar-width: none;
-                -ms-overflow-style: none;
-                scroll-behavior: smooth;
-                -webkit-overflow-scrolling: touch;
-                padding: 2px 0;
+               
+                gap: 6px !important;
+                width: 100%;
                 box-sizing: border-box;
-                scroll-padding: 0 20px;
-                justify-content: space-between;
-            }
-
-            /* Ocultar scrollbar completamente pero mantener funcionalidad */
-            .category-filter-horizontal::-webkit-scrollbar {
-                display: none;
+                align-items: center;
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+                display: grid;
             }
 
             .category-item {
                 position: relative;
-                flex-shrink: 0;
-                min-width: max-content !important;
                 cursor: pointer;
                 transition: all 0.3s ease;
                 background: #fff;
                 text-align: center;
                 white-space: nowrap;
-                overflow: visible !important;
-                padding: 8px 16px;
-                border-radius: 25px;
+                padding: 6px 10px;
+                border-radius: 16px;
                 border: 1px solid #e0e0e0;
-                margin: 0 2px;
+                flex-shrink: 0;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
             }
 
             .category-item:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+                transform: translateY(-1px);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
                 border-color: #007cba;
+                z-index: 10;
             }
 
             .category-item.active {
                 background: #007cba;
                 color: white;
                 border-color: #007cba;
-                box-shadow: 0 3px 10px rgba(0, 124, 186, 0.3);
+                box-shadow: 0 2px 8px rgba(0, 124, 186, 0.3);
             }
 
             .category-item.active .category-count {
                 color: rgba(255, 255, 255, 0.9);
+                background: rgba(255, 255, 255, 0.2);
+            }
+
+            .category-main {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 4px !important;
+                width: 100%;
             }
 
             .category-name {
-                display: block;
-                font-size: 14px;
+                font-size: 12px;
                 font-weight: 600;
                 color: #333;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                flex: 1;
+                text-align: center;
             }
 
             .category-count {
-                display: inline-block;
-                font-size: 10px;
-                color: #777;
-                font-weight: 400;
-                background: rgba(0, 0, 0, 0.04);
-                padding: 2px 8px;
-                border-radius: 10px;
-                margin-left: 6px;
+                font-size: 9px;
+                color: #666;
+                font-weight: 500;
+                background: #f5f5f5;
+                padding: 2px 6px;
+                border-radius: 8px;
+                min-width: 18px;
             }
 
             .subcategories-dropdown {
                 position: absolute;
                 background: #fff;
                 border: 1px solid #e0e0e0;
-                border-radius: 8px;
-                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+                border-radius: 12px;
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
                 opacity: 0;
                 visibility: hidden;
-                transform: translateY(10px);
+                transform: translateY(8px);
                 transition: all 0.3s ease;
-                z-index: 99999;
-                max-height: 400px;
+                z-index: 1001;
+                max-height: 300px;
                 overflow-y: auto;
-                min-width: 200px;
-                top: calc(100% + 8px);
-                left: 0;
+                min-width: 160px;
+                top: calc(100% + 4px);
+                left: 50%;
+                transform: translateY(8px) translateX(-50%);
             }
 
             .subcategories-dropdown.active {
-                opacity: 1 !important;
-                visibility: visible !important;
-                transform: translateY(0) !important;
+                opacity: 1;
+                visibility: visible;
+                transform: translateY(4px) translateX(-50%);
+            }
+
+            /* Ajustar dropdowns cerca del borde derecho */
+            .category-item.has-subcategories.dropdown-right .subcategories-dropdown {
+                left: auto !important;
+                right: 0 !important;
+                transform: translateY(8px) !important;
+            }
+
+            .category-item.has-subcategories.dropdown-right .subcategories-dropdown.active {
+                transform: translateY(4px) !important;
             }
 
             .subcategory-item {
-                padding: 12px 20px;
+                padding: 10px 16px;
                 cursor: pointer;
                 transition: background 0.2s;
                 border-bottom: 1px solid #f5f5f5;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
+                gap: 8px !important;
             }
 
             .subcategory-item:last-child {
@@ -253,18 +273,21 @@ class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base
             }
 
             .subcategory-name {
-                font-size: 14px;
+                font-size: 12px;
                 font-weight: 500;
                 color: #333;
+                flex: 1;
+                text-align: left;
             }
 
             .subcategory-count {
-                font-size: 11px;
+                font-size: 10px;
                 color: #666;
                 background: #f0f0f0;
-                padding: 3px 10px;
-                border-radius: 12px;
-                margin-left: 10px;
+                padding: 2px 8px;
+                border-radius: 10px;
+                min-width: 20px;
+                text-align: center;
             }
 
             .category-filter-loading {
@@ -277,9 +300,9 @@ class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base
                 position: absolute;
                 top: 50%;
                 left: 50%;
-                width: 20px;
-                height: 20px;
-                margin: -10px 0 0 -10px;
+                width: 16px;
+                height: 16px;
+                margin: -8px 0 0 -8px;
                 border: 2px solid #f3f3f3;
                 border-top: 2px solid #007cba;
                 border-radius: 50%;
@@ -296,30 +319,55 @@ class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base
                 }
             }
 
+            /* Responsive - Flex optimizado */
+            @media (min-width: 1200px) {
+                .category-filter-horizontal {
+                    gap: 8px !important;
+                }
+            }
+
             @media (max-width: 768px) {
                 .category-filter-horizontal-wrapper {
-                    border-radius: 30px;
-                    padding: 6px 8px;
-                    margin: 0 4px;
+                    border-radius: 12px;
+                    padding: 6px;
                 }
 
                 .category-filter-horizontal {
-                    gap: 6px;
-                    scroll-padding: 0 15px;
-
-                }
-
-                .category-name {
-                    font-size: 13px;
+                    display: flex !important;
+                    flex-wrap: wrap !important;
+                    gap: 4px !important;
+                    justify-content: center;
                 }
 
                 .category-item {
-                    min-width: 65% !important;
-                    padding: 6px 12px;
-                    margin: 0 1px;
+                    padding: 5px 8px;
+                    border-radius: 12px;
+                    width: 30%;
+                }
+
+                .category-name {
+                    font-size: 11px;
                 }
 
                 .category-count {
+                    font-size: 8px;
+                    padding: 1px 4px;
+                    min-width: 16px;
+                }
+
+                .subcategories-dropdown {
+                    min-width: 140px;
+                }
+
+                .subcategory-item {
+                    padding: 8px 12px;
+                }
+
+                .subcategory-name {
+                    font-size: 11px;
+                }
+
+                .subcategory-count {
                     font-size: 9px;
                     padding: 1px 6px;
                 }
@@ -327,29 +375,57 @@ class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base
 
             @media (max-width: 480px) {
                 .category-filter-horizontal-wrapper {
-                    border-radius: 25px;
-                    padding: 5px 6px;
-                    margin: 0 2px;
+                    border-radius: 10px;
+                    padding: 5px;
                 }
 
                 .category-filter-horizontal {
-                    gap: 4px !important;
-                    scroll-padding: 0 10px;
+                    gap: 3px !important;
                 }
 
                 .category-item {
-                    min-width: 65% !important;
-                    padding: 5px 10px;
-                    margin: 0 1px;
+                    padding: 5px 8px;
+                    border-radius: 14px;
+                    min-height: 32px;
                 }
 
                 .category-name {
-                    font-size: 12px;
+                    font-size: 10px;
                 }
 
                 .category-count {
-                    font-size: 8px;
-                    padding: 1px 4px;
+                    font-size: 7px;
+                    padding: 1px 3px;
+                    min-width: 14px;
+                }
+
+                .subcategories-dropdown {
+                    min-width: 120px;
+                }
+
+                .subcategory-item {
+                    padding: 6px 10px;
+                }
+
+                .subcategory-name {
+                    font-size: 10px;
+                }
+            }
+
+            /* Para pantallas muy pequeñas */
+            @media (max-width: 360px) {
+                .category-filter-horizontal {
+                    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+                    gap: 4px !important;
+                }
+
+                .category-item {
+                    padding: 4px 6px;
+                    min-height: 30px;
+                }
+
+                .category-name {
+                    font-size: 9px;
                 }
             }
         </style>
