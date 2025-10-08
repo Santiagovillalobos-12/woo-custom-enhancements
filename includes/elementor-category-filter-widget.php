@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Widget de Elementor para Filtro de Categorías
  * Archivo: includes/elementor-category-filter-widget.php
@@ -9,7 +8,6 @@ if (!defined('ABSPATH')) exit;
 
 class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base
 {
-
     public function get_name()
     {
         return 'category_filter_horizontal';
@@ -37,8 +35,7 @@ class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base
 
     protected function register_controls()
     {
-
-        // Sección de Contenido
+        // ============ SECCIÓN DE CONTENIDO ============
         $this->start_controls_section(
             'content_section',
             [
@@ -85,7 +82,7 @@ class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base
 
         $this->end_controls_section();
 
-        // Sección de Estilo - Contenedor
+        // ============ ESTILO - CONTENEDOR ============
         $this->start_controls_section(
             'container_style_section',
             [
@@ -107,11 +104,30 @@ class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base
         $this->add_responsive_control(
             'container_padding',
             [
-                'label' => esc_html__('Relleno', 'woo-custom-enhancements'),
+                'label' => esc_html__('Relleno interno', 'woo-custom-enhancements'),
+                'type' => \Elementor\Controls_Manager::DIMENSIONS,
+                'size_units' => ['px', '%', 'em'],
+                'default' => [
+                    'top' => '15',
+                    'right' => '20',
+                    'bottom' => '15',
+                    'left' => '20',
+                    'unit' => 'px',
+                ],
+                'selectors' => [
+                    '{{WRAPPER}} .category-filter-horizontal-wrapper' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                ],
+            ]
+        );
+
+        $this->add_responsive_control(
+            'container_margin',
+            [
+                'label' => esc_html__('Margen externo', 'woo-custom-enhancements'),
                 'type' => \Elementor\Controls_Manager::DIMENSIONS,
                 'size_units' => ['px', '%', 'em'],
                 'selectors' => [
-                    '{{WRAPPER}} .category-filter-horizontal-wrapper' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                    '{{WRAPPER}} .category-filter-horizontal-wrapper' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
                 ],
             ]
         );
@@ -128,9 +144,18 @@ class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base
             ]
         );
 
+        $this->add_group_control(
+            \Elementor\Group_Control_Box_Shadow::get_type(),
+            [
+                'name' => 'container_box_shadow',
+                'label' => esc_html__('Sombra', 'woo-custom-enhancements'),
+                'selector' => '{{WRAPPER}} .category-filter-horizontal-wrapper',
+            ]
+        );
+
         $this->end_controls_section();
 
-        // Sección de Estilo - Items
+        // ============ ESTILO - ITEMS DE CATEGORÍA ============
         $this->start_controls_section(
             'item_style_section',
             [
@@ -142,19 +167,78 @@ class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base
         $this->add_responsive_control(
             'item_padding',
             [
-                'label' => esc_html__('Relleno', 'woo-custom-enhancements'),
+                'label' => esc_html__('Relleno del item', 'woo-custom-enhancements'),
                 'type' => \Elementor\Controls_Manager::DIMENSIONS,
                 'size_units' => ['px', '%', 'em'],
+                'default' => [
+                    'top' => '10',
+                    'right' => '20',
+                    'bottom' => '10',
+                    'left' => '20',
+                    'unit' => 'px',
+                ],
                 'selectors' => [
                     '{{WRAPPER}} .category-item' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
                 ],
             ]
         );
 
+        $this->add_responsive_control(
+            'item_gap',
+            [
+                'label' => esc_html__('Espacio entre items', 'woo-custom-enhancements'),
+                'type' => \Elementor\Controls_Manager::SLIDER,
+                'size_units' => ['px'],
+                'range' => [
+                    'px' => [
+                        'min' => 0,
+                        'max' => 50,
+                    ],
+                ],
+                'default' => [
+                    'unit' => 'px',
+                    'size' => 10,
+                ],
+                'selectors' => [
+                    '{{WRAPPER}} .category-filter-horizontal' => 'gap: {{SIZE}}{{UNIT}};',
+                ],
+            ]
+        );
+
+        $this->add_control(
+            'item_border_radius',
+            [
+                'label' => esc_html__('Radio de borde del item', 'woo-custom-enhancements'),
+                'type' => \Elementor\Controls_Manager::DIMENSIONS,
+                'size_units' => ['px', '%'],
+                'default' => [
+                    'top' => '6',
+                    'right' => '6',
+                    'bottom' => '6',
+                    'left' => '6',
+                    'unit' => 'px',
+                ],
+                'selectors' => [
+                    '{{WRAPPER}} .category-item' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                ],
+            ]
+        );
+
+        // Tabs para estados: Normal, Hover, Active
+        $this->start_controls_tabs('item_style_tabs');
+
+        // TAB NORMAL
+        $this->start_controls_tab(
+            'item_normal_tab',
+            [
+                'label' => esc_html__('Normal', 'woo-custom-enhancements'),
+            ]
+        );
+
         $this->add_control(
             'item_background',
             [
-                'label' => esc_html__('Fondo normal', 'woo-custom-enhancements'),
+                'label' => esc_html__('Color de fondo', 'woo-custom-enhancements'),
                 'type' => \Elementor\Controls_Manager::COLOR,
                 'default' => '#ffffff',
                 'selectors' => [
@@ -163,22 +247,60 @@ class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base
             ]
         );
 
+        $this->add_group_control(
+            \Elementor\Group_Control_Border::get_type(),
+            [
+                'name' => 'item_border',
+                'label' => esc_html__('Borde', 'woo-custom-enhancements'),
+                'selector' => '{{WRAPPER}} .category-item',
+            ]
+        );
+
+        $this->end_controls_tab();
+
+        // TAB HOVER
+        $this->start_controls_tab(
+            'item_hover_tab',
+            [
+                'label' => esc_html__('Hover', 'woo-custom-enhancements'),
+            ]
+        );
+
         $this->add_control(
             'item_background_hover',
             [
-                'label' => esc_html__('Fondo hover', 'woo-custom-enhancements'),
+                'label' => esc_html__('Color de fondo', 'woo-custom-enhancements'),
                 'type' => \Elementor\Controls_Manager::COLOR,
-                'default' => '#f8f9fa',
+                'default' => '#f0f0f0',
                 'selectors' => [
                     '{{WRAPPER}} .category-item:hover' => 'background-color: {{VALUE}};',
                 ],
             ]
         );
 
+        $this->add_group_control(
+            \Elementor\Group_Control_Border::get_type(),
+            [
+                'name' => 'item_border_hover',
+                'label' => esc_html__('Borde', 'woo-custom-enhancements'),
+                'selector' => '{{WRAPPER}} .category-item:hover',
+            ]
+        );
+
+        $this->end_controls_tab();
+
+        // TAB ACTIVE
+        $this->start_controls_tab(
+            'item_active_tab',
+            [
+                'label' => esc_html__('Activo', 'woo-custom-enhancements'),
+            ]
+        );
+
         $this->add_control(
             'item_background_active',
             [
-                'label' => esc_html__('Fondo activo', 'woo-custom-enhancements'),
+                'label' => esc_html__('Color de fondo', 'woo-custom-enhancements'),
                 'type' => \Elementor\Controls_Manager::COLOR,
                 'default' => '#007cba',
                 'selectors' => [
@@ -187,13 +309,26 @@ class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base
             ]
         );
 
+        $this->add_group_control(
+            \Elementor\Group_Control_Border::get_type(),
+            [
+                'name' => 'item_border_active',
+                'label' => esc_html__('Borde', 'woo-custom-enhancements'),
+                'selector' => '{{WRAPPER}} .category-item.active',
+            ]
+        );
+
+        $this->end_controls_tab();
+
+        $this->end_controls_tabs();
+
         $this->end_controls_section();
 
-        // Sección de Estilo - Texto
+        // ============ ESTILO - TEXTO DE CATEGORÍA ============
         $this->start_controls_section(
             'text_style_section',
             [
-                'label' => esc_html__('Texto', 'woo-custom-enhancements'),
+                'label' => esc_html__('Texto de Categoría', 'woo-custom-enhancements'),
                 'tab' => \Elementor\Controls_Manager::TAB_STYLE,
             ]
         );
@@ -202,15 +337,42 @@ class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base
             \Elementor\Group_Control_Typography::get_type(),
             [
                 'name' => 'category_name_typography',
-                'label' => esc_html__('Tipografía del nombre', 'woo-custom-enhancements'),
+                'label' => esc_html__('Tipografía', 'woo-custom-enhancements'),
                 'selector' => '{{WRAPPER}} .category-name',
+            ]
+        );
+
+        $this->add_control(
+            'text_transform',
+            [
+                'label' => esc_html__('Transformación de texto', 'woo-custom-enhancements'),
+                'type' => \Elementor\Controls_Manager::SELECT,
+                'default' => 'uppercase',
+                'options' => [
+                    'none' => esc_html__('Ninguna', 'woo-custom-enhancements'),
+                    'uppercase' => esc_html__('MAYÚSCULAS', 'woo-custom-enhancements'),
+                    'lowercase' => esc_html__('minúsculas', 'woo-custom-enhancements'),
+                    'capitalize' => esc_html__('Capitalizar', 'woo-custom-enhancements'),
+                ],
+                'selectors' => [
+                    '{{WRAPPER}} .category-name' => 'text-transform: {{VALUE}};',
+                ],
+            ]
+        );
+
+        $this->start_controls_tabs('text_color_tabs');
+
+        $this->start_controls_tab(
+            'text_normal_tab',
+            [
+                'label' => esc_html__('Normal', 'woo-custom-enhancements'),
             ]
         );
 
         $this->add_control(
             'category_name_color',
             [
-                'label' => esc_html__('Color del nombre', 'woo-custom-enhancements'),
+                'label' => esc_html__('Color', 'woo-custom-enhancements'),
                 'type' => \Elementor\Controls_Manager::COLOR,
                 'default' => '#333333',
                 'selectors' => [
@@ -219,15 +381,193 @@ class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base
             ]
         );
 
+        $this->end_controls_tab();
+
+        $this->start_controls_tab(
+            'text_hover_tab',
+            [
+                'label' => esc_html__('Hover', 'woo-custom-enhancements'),
+            ]
+        );
+
+        $this->add_control(
+            'category_name_color_hover',
+            [
+                'label' => esc_html__('Color', 'woo-custom-enhancements'),
+                'type' => \Elementor\Controls_Manager::COLOR,
+                'default' => '#000000',
+                'selectors' => [
+                    '{{WRAPPER}} .category-item:hover .category-name' => 'color: {{VALUE}};',
+                ],
+            ]
+        );
+
+        $this->end_controls_tab();
+
+        $this->start_controls_tab(
+            'text_active_tab',
+            [
+                'label' => esc_html__('Activo', 'woo-custom-enhancements'),
+            ]
+        );
+
         $this->add_control(
             'category_name_color_active',
             [
-                'label' => esc_html__('Color del nombre (activo)', 'woo-custom-enhancements'),
+                'label' => esc_html__('Color', 'woo-custom-enhancements'),
                 'type' => \Elementor\Controls_Manager::COLOR,
                 'default' => '#ffffff',
                 'selectors' => [
                     '{{WRAPPER}} .category-item.active .category-name' => 'color: {{VALUE}};',
                 ],
+            ]
+        );
+
+        $this->end_controls_tab();
+
+        $this->end_controls_tabs();
+
+        $this->end_controls_section();
+
+        // ============ ESTILO - CONTADOR ============
+        $this->start_controls_section(
+            'counter_style_section',
+            [
+                'label' => esc_html__('Contador de Productos', 'woo-custom-enhancements'),
+                'tab' => \Elementor\Controls_Manager::TAB_STYLE,
+                'condition' => [
+                    'show_product_count' => 'yes',
+                ],
+            ]
+        );
+
+        $this->add_group_control(
+            \Elementor\Group_Control_Typography::get_type(),
+            [
+                'name' => 'counter_typography',
+                'label' => esc_html__('Tipografía', 'woo-custom-enhancements'),
+                'selector' => '{{WRAPPER}} .category-count',
+            ]
+        );
+
+        $this->add_control(
+            'counter_spacing',
+            [
+                'label' => esc_html__('Espacio superior', 'woo-custom-enhancements'),
+                'type' => \Elementor\Controls_Manager::SLIDER,
+                'size_units' => ['px'],
+                'range' => [
+                    'px' => [
+                        'min' => 0,
+                        'max' => 20,
+                    ],
+                ],
+                'default' => [
+                    'unit' => 'px',
+                    'size' => 3,
+                ],
+                'selectors' => [
+                    '{{WRAPPER}} .category-count' => 'margin-top: {{SIZE}}{{UNIT}};',
+                ],
+            ]
+        );
+
+        $this->start_controls_tabs('counter_color_tabs');
+
+        $this->start_controls_tab(
+            'counter_normal_tab',
+            [
+                'label' => esc_html__('Normal', 'woo-custom-enhancements'),
+            ]
+        );
+
+        $this->add_control(
+            'counter_color',
+            [
+                'label' => esc_html__('Color', 'woo-custom-enhancements'),
+                'type' => \Elementor\Controls_Manager::COLOR,
+                'default' => '#999999',
+                'selectors' => [
+                    '{{WRAPPER}} .category-count' => 'color: {{VALUE}};',
+                ],
+            ]
+        );
+
+        $this->end_controls_tab();
+
+        $this->start_controls_tab(
+            'counter_active_tab',
+            [
+                'label' => esc_html__('Activo', 'woo-custom-enhancements'),
+            ]
+        );
+
+        $this->add_control(
+            'counter_color_active',
+            [
+                'label' => esc_html__('Color', 'woo-custom-enhancements'),
+                'type' => \Elementor\Controls_Manager::COLOR,
+                'default' => '#ffffff',
+                'selectors' => [
+                    '{{WRAPPER}} .category-item.active .category-count' => 'color: {{VALUE}};',
+                ],
+            ]
+        );
+
+        $this->end_controls_tab();
+
+        $this->end_controls_tabs();
+
+        $this->end_controls_section();
+
+        // ============ ESTILO - DROPDOWN ============
+        $this->start_controls_section(
+            'dropdown_style_section',
+            [
+                'label' => esc_html__('Menú Desplegable', 'woo-custom-enhancements'),
+                'tab' => \Elementor\Controls_Manager::TAB_STYLE,
+            ]
+        );
+
+        $this->add_control(
+            'dropdown_background',
+            [
+                'label' => esc_html__('Fondo', 'woo-custom-enhancements'),
+                'type' => \Elementor\Controls_Manager::COLOR,
+                'default' => '#ffffff',
+                'selectors' => [
+                    '{{WRAPPER}} .subcategories-dropdown' => 'background-color: {{VALUE}};',
+                ],
+            ]
+        );
+
+        $this->add_group_control(
+            \Elementor\Group_Control_Border::get_type(),
+            [
+                'name' => 'dropdown_border',
+                'label' => esc_html__('Borde', 'woo-custom-enhancements'),
+                'selector' => '{{WRAPPER}} .subcategories-dropdown',
+            ]
+        );
+
+        $this->add_control(
+            'dropdown_border_radius',
+            [
+                'label' => esc_html__('Radio del borde', 'woo-custom-enhancements'),
+                'type' => \Elementor\Controls_Manager::DIMENSIONS,
+                'size_units' => ['px', '%'],
+                'selectors' => [
+                    '{{WRAPPER}} .subcategories-dropdown' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                ],
+            ]
+        );
+
+        $this->add_group_control(
+            \Elementor\Group_Control_Box_Shadow::get_type(),
+            [
+                'name' => 'dropdown_box_shadow',
+                'label' => esc_html__('Sombra', 'woo-custom-enhancements'),
+                'selector' => '{{WRAPPER}} .subcategories-dropdown',
             ]
         );
 
@@ -316,11 +656,17 @@ class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base
         </div>
 
         <style>
+            /* Permitir overflow visible en todos los contenedores */
+            .elementor-widget-category_filter_horizontal,
+            .elementor-widget-category_filter_horizontal .elementor-widget-container,
+            .elementor-widget-category_filter_horizontal .elementor-widget-container * {
+                overflow: visible !important;
+            }
+
             .category-filter-horizontal-wrapper {
-                margin: 20px 0 30px 0;
                 background: #fff;
-                border-radius: 8px;
-                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                border-radius: 50px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
                 overflow: visible !important;
                 position: relative;
                 z-index: 1000;
@@ -328,101 +674,71 @@ class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base
 
             .category-filter-horizontal {
                 display: flex;
+                align-items: center;
                 overflow-x: auto;
                 overflow-y: visible !important;
                 scrollbar-width: thin;
                 scrollbar-color: #ddd transparent;
-            }
-
-            /* Forzar que todos los contenedores padre permitan overflow visible */
-            .elementor-widget-category_filter_horizontal {
-                overflow: visible !important;
-            }
-
-            .elementor-widget-category_filter_horizontal .elementor-widget-container {
-                overflow: visible !important;
-            }
-
-            .elementor-widget-category_filter_horizontal .elementor-widget-container * {
-                overflow: visible !important;
-            }
-
-            /* Asegurar que el contenedor del filtro permita que los dropdowns se vean */
-            .category-filter-horizontal-wrapper,
-            .category-filter-horizontal,
-            .category-item {
-                overflow: visible !important;
+                gap: 10px;
             }
 
             .category-filter-horizontal::-webkit-scrollbar {
-                height: 6px;
+                height: 4px;
             }
 
             .category-filter-horizontal::-webkit-scrollbar-track {
-                background: #f1f1f1;
+                background: transparent;
             }
 
             .category-filter-horizontal::-webkit-scrollbar-thumb {
                 background: #ddd;
-                border-radius: 3px;
+                border-radius: 4px;
             }
 
             .category-item {
                 position: relative;
                 flex-shrink: 0;
-                min-width: 160px;
-                padding: 20px 25px;
                 cursor: pointer;
-                transition: all 0.3s;
-                border-right: 1px solid #f0f0f0;
+                transition: all 0.3s ease;
                 background: #fff;
                 text-align: center;
+                white-space: nowrap;
+                overflow: visible !important;
             }
 
             .category-item:hover {
-                background: #f8f9fa;
-            }
-
-            .category-item.active {
-                background: #007cba;
-                color: #fff;
-            }
-
-            .category-item.active .category-name,
-            .category-item.active .category-count {
-                color: #fff;
+                transform: translateY(-2px);
             }
 
             .category-name {
                 display: block;
-                font-size: 16px;
+                font-size: 14px;
                 font-weight: 600;
-                margin-bottom: 5px;
                 color: #333;
-                text-transform: uppercase;
             }
 
             .category-count {
                 display: block;
-                font-size: 12px;
-                color: #666;
+                font-size: 11px;
+                color: #999;
+                font-weight: 400;
             }
 
             .subcategories-dropdown {
                 position: absolute;
                 background: #fff;
-                border: 1px solid #ddd;
+                border: 1px solid #e0e0e0;
                 border-radius: 8px;
-                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
                 opacity: 0;
                 visibility: hidden;
-                transform: translateY(-10px);
-                transition: all 0.3s;
+                transform: translateY(10px);
+                transition: all 0.3s ease;
                 z-index: 99999;
                 max-height: 400px;
                 overflow-y: auto;
                 min-width: 200px;
-                top: 100%;
+                top: calc(100% + 8px);
                 left: 0;
             }
 
@@ -436,9 +752,14 @@ class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base
                 padding: 12px 20px;
                 cursor: pointer;
                 transition: background 0.2s;
-                border-bottom: 1px solid #f0f0f0;
+                border-bottom: 1px solid #f5f5f5;
                 display: flex;
                 justify-content: space-between;
+                align-items: center;
+            }
+
+            .subcategory-item:last-child {
+                border-bottom: none;
             }
 
             .subcategory-item:hover {
@@ -455,8 +776,9 @@ class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base
                 font-size: 11px;
                 color: #666;
                 background: #f0f0f0;
-                padding: 2px 8px;
-                border-radius: 10px;
+                padding: 3px 10px;
+                border-radius: 12px;
+                margin-left: 10px;
             }
 
             .category-filter-loading {
@@ -489,13 +811,12 @@ class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base
             }
 
             @media (max-width: 768px) {
-                .category-item {
-                    min-width: 140px;
-                    padding: 15px 20px;
+                .category-filter-horizontal-wrapper {
+                    border-radius: 30px;
                 }
 
                 .category-name {
-                    font-size: 14px;
+                    font-size: 13px;
                 }
             }
         </style>
