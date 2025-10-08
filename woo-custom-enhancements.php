@@ -713,64 +713,75 @@ register_activation_hook( __FILE__, 'woo_custom_enhancements_importar_elementor_
 function woo_custom_enhancements_importar_elementor_templates() {
     // Evitar cualquier salida durante la activación
     ob_start();
+    
     // Debug: Log de inicio
     error_log('Woo Custom Enhancements: Iniciando importación de plantillas');
     
     // Verificar que Elementor esté activo
     if ( ! class_exists( '\Elementor\Plugin' ) ) {
         error_log('Woo Custom Enhancements: Elementor no está activo');
-        return;
-    }
-
-    // Verificar si ya se importaron las plantillas
-    $templates_imported = get_option( 'woo_custom_enhancements_templates_imported', false );
-    if ( $templates_imported ) {
-        error_log('Woo Custom Enhancements: Las plantillas ya fueron importadas anteriormente');
+        ob_end_clean();
         return;
     }
 
     $templates_dir = plugin_dir_path( __FILE__ ) . 'templates/';
     error_log('Woo Custom Enhancements: Buscando plantillas en: ' . $templates_dir);
     
+    // Verificar que el directorio existe
+    if ( ! is_dir( $templates_dir ) ) {
+        error_log('Woo Custom Enhancements: El directorio templates/ no existe');
+        ob_end_clean();
+        return;
+    }
+    
     $files = glob( $templates_dir . '*.json' );
     error_log('Woo Custom Enhancements: Archivos encontrados: ' . count($files));
 
     if ( empty( $files ) ) {
         error_log('Woo Custom Enhancements: No se encontraron archivos JSON en la carpeta templates/');
+        ob_end_clean();
         return;
     }
 
     $imported_count = 0;
+    $skipped_count = 0;
     $errors = array();
 
     foreach ( $files as $file ) {
-        error_log('Woo Custom Enhancements: Procesando archivo: ' . basename($file));
+        $filename = basename($file);
+        error_log('Woo Custom Enhancements: Procesando archivo: ' . $filename);
+        
+        if ( ! file_exists( $file ) ) {
+            $errors[] = 'El archivo no existe: ' . $filename;
+            continue;
+        }
         
         $content = file_get_contents( $file );
         if ( $content === false ) {
-            $errors[] = 'No se pudo leer el archivo: ' . basename($file);
+            $errors[] = 'No se pudo leer el archivo: ' . $filename;
             continue;
         }
         
         $data = json_decode( $content, true );
         if ( json_last_error() !== JSON_ERROR_NONE ) {
-            $errors[] = 'Error JSON en archivo ' . basename($file) . ': ' . json_last_error_msg();
+            $errors[] = 'Error JSON en archivo ' . $filename . ': ' . json_last_error_msg();
             continue;
         }
 
         if ( ! $data || ! isset( $data['title'] ) ) {
-            $errors[] = 'Datos inválidos en archivo: ' . basename($file);
+            $errors[] = 'Datos inválidos en archivo: ' . $filename;
             continue;
         }
 
         error_log('Woo Custom Enhancements: Procesando plantilla: ' . $data['title']);
 
-        // Verificar si la plantilla ya existe usando WP_Query (reemplaza get_page_by_title obsoleto)
+        // Verificar si la plantilla ya existe usando WP_Query
         $existing_query = new WP_Query(array(
             'post_type' => 'elementor_library',
-            'post_status' => 'publish',
+            'post_status' => array('publish', 'draft', 'private'),
             'title' => $data['title'],
-            'posts_per_page' => 1
+            'posts_per_page' => 1,
+            'fields' => 'ids'
         ));
         
         if ($existing_query->have_posts()) {
@@ -778,6 +789,7 @@ function woo_custom_enhancements_importar_elementor_templates() {
             $existing_post_id = get_the_ID();
             error_log('Woo Custom Enhancements: La plantilla ya existe con ID: ' . $existing_post_id . ' - Título: ' . $data['title']);
             wp_reset_postdata();
+            $skipped_count++;
             continue; // Ya existe, saltar
         }
 
@@ -786,7 +798,8 @@ function woo_custom_enhancements_importar_elementor_templates() {
             'post_title'   => $data['title'],
             'post_type'    => 'elementor_library',
             'post_status'  => 'publish',
-            'post_content' => ''
+            'post_content' => '',
+            'meta_input'   => array()
         );
         
         $post_id = wp_insert_post( $post_data );
@@ -830,33 +843,37 @@ function woo_custom_enhancements_importar_elementor_templates() {
         }
     }
 
-    // Marcar que las plantillas fueron importadas
-    if ( $imported_count > 0 ) {
-        update_option( 'woo_custom_enhancements_templates_imported', true );
-        error_log('Woo Custom Enhancements: Importación completada. Plantillas importadas: ' . $imported_count);
-        
-        // Mostrar mensaje de éxito
-        add_action( 'admin_notices', function() use ( $imported_count, $errors ) {
-            ?>
-            <div class="notice notice-success is-dismissible">
-                <p><strong>Woo Custom Enhancements:</strong> Se importaron <?php echo $imported_count; ?> plantillas de Elementor correctamente.</p>
+    // Marcar que las plantillas fueron procesadas
+    update_option( 'woo_custom_enhancements_templates_imported', true );
+    update_option( 'woo_custom_enhancements_last_import', current_time('timestamp') );
+    
+    error_log('Woo Custom Enhancements: Importación completada. Importadas: ' . $imported_count . ', Omitidas: ' . $skipped_count);
+    
+    // Mostrar mensaje de éxito en admin
+    add_action( 'admin_notices', function() use ( $imported_count, $skipped_count, $errors ) {
+        ?>
+        <div class="notice notice-success is-dismissible">
+            <p><strong>Woo Custom Enhancements:</strong> Procesamiento de plantillas completado.</p>
+            <ul style="margin: 10px 0; padding-left: 20px;">
+                <li>✅ Plantillas importadas: <strong><?php echo $imported_count; ?></strong></li>
+                <li>⏭️ Plantillas omitidas (ya existían): <strong><?php echo $skipped_count; ?></strong></li>
                 <?php if ( ! empty( $errors ) ): ?>
-                    <p><strong>Errores encontrados:</strong></p>
-                    <ul>
+                    <li>❌ Errores: <strong><?php echo count($errors); ?></strong></li>
+                <?php endif; ?>
+            </ul>
+            <?php if ( ! empty( $errors ) ): ?>
+                <details style="margin-top: 10px;">
+                    <summary style="cursor: pointer; font-weight: bold;">Ver errores detallados</summary>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
                         <?php foreach ( $errors as $error ): ?>
-                            <li><?php echo esc_html( $error ); ?></li>
+                            <li style="color: #d63638;"><?php echo esc_html( $error ); ?></li>
                         <?php endforeach; ?>
                     </ul>
-                <?php endif; ?>
-            </div>
-            <?php
-        });
-    } else {
-        error_log('Woo Custom Enhancements: No se importó ninguna plantilla');
-        if ( ! empty( $errors ) ) {
-            error_log('Woo Custom Enhancements: Errores: ' . implode(', ', $errors));
-        }
-    }
+                </details>
+            <?php endif; ?>
+        </div>
+        <?php
+    });
     
     // Limpiar cualquier salida buffer
     ob_end_clean();
@@ -894,10 +911,14 @@ add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'woo_custom_en
 
 function woo_custom_enhancements_plugin_links( $links ) {
     if ( current_user_can( 'manage_options' ) ) {
-        $reimport_link = '<a href="' . admin_url( 'admin-post.php?action=reimport_elementor_templates' ) . '" onclick="return confirm(\'¿Estás seguro de que quieres reimportar las plantillas? Esto puede crear duplicados.\')">Reimportar Plantillas</a>';
+        $fix_elementor_link = '<a href="' . admin_url( 'admin-post.php?action=fix_elementor_compatibility' ) . '" onclick="return confirm(\'¿Aplicar fix de compatibilidad de Elementor?\')" style="color: #0073aa;">Fix Elementor</a>';
+        $force_reimport_link = '<a href="' . admin_url( 'admin-post.php?action=force_reimport_elementor_templates' ) . '" onclick="return confirm(\'⚠️ ATENCIÓN: Esto eliminará las plantillas existentes y las volverá a crear. ¿Continuar?\')" style="color: #d63638;">Forzar Reimportación</a>';
+        $reimport_link = '<a href="' . admin_url( 'admin-post.php?action=reimport_elementor_templates' ) . '" onclick="return confirm(\'¿Estás seguro de que quieres reimportar las plantillas?\')">Reimportar Plantillas</a>';
         $check_link = '<a href="' . admin_url( 'admin-post.php?action=check_elementor_templates' ) . '">Verificar Plantillas</a>';
         array_unshift( $links, $check_link );
         array_unshift( $links, $reimport_link );
+        array_unshift( $links, $force_reimport_link );
+        array_unshift( $links, $fix_elementor_link );
     }
     return $links;
 }
@@ -974,6 +995,107 @@ function woo_custom_enhancements_reimportar_templates() {
     exit;
 }
 
+// Función para aplicar fix de Elementor manualmente
+add_action( 'admin_post_fix_elementor_compatibility', 'woo_custom_enhancements_aplicar_fix_elementor' );
+
+function woo_custom_enhancements_aplicar_fix_elementor() {
+    // Verificar permisos de administrador
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_die( 'No tienes permisos para realizar esta acción.' );
+    }
+
+    error_log('Woo Custom Enhancements: Aplicando fix de Elementor manualmente');
+
+    // Verificar si existe el archivo problemático
+    $elementor_pro_file = WP_PLUGIN_DIR . '/elementor-pro/modules/loop-builder/skins/skin-loop-base.php';
+    
+    if (!file_exists($elementor_pro_file)) {
+        wp_redirect( admin_url( 'plugins.php?woo_fix_elementor_error=1' ) );
+        exit;
+    }
+    
+    // Leer el contenido del archivo
+    $content = file_get_contents($elementor_pro_file);
+    
+    // Buscar la línea problemática
+    if (strpos($content, '$document->print_content();') !== false) {
+        // Aplicar el fix de compatibilidad
+        $fixed_content = str_replace(
+            '$document->print_content();',
+            'if (method_exists($document, \'print_content\')) {
+                $document->print_content();
+            } elseif (method_exists($document, \'get_content\')) {
+                echo $document->get_content();
+            }',
+            $content
+        );
+        
+        // Escribir el archivo corregido
+        if (file_put_contents($elementor_pro_file, $fixed_content)) {
+            update_option('woo_custom_enhancements_elementor_fix_applied', true);
+            error_log('Woo Custom Enhancements: Fix de compatibilidad aplicado manualmente');
+            wp_redirect( admin_url( 'plugins.php?woo_fix_elementor_success=1' ) );
+        } else {
+            wp_redirect( admin_url( 'plugins.php?woo_fix_elementor_error=1' ) );
+        }
+    } else {
+        wp_redirect( admin_url( 'plugins.php?woo_fix_elementor_already=1' ) );
+    }
+    
+    exit;
+}
+
+// Función para forzar reimportación completa (elimina plantillas existentes)
+add_action( 'admin_post_force_reimport_elementor_templates', 'woo_custom_enhancements_forzar_reimportar_templates' );
+
+function woo_custom_enhancements_forzar_reimportar_templates() {
+    // Verificar permisos de administrador
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_die( 'No tienes permisos para realizar esta acción.' );
+    }
+
+    error_log('Woo Custom Enhancements: Reimportación forzada iniciada');
+
+    // Eliminar plantillas existentes del plugin
+    $templates_dir = plugin_dir_path( __FILE__ ) . 'templates/';
+    $files = glob( $templates_dir . '*.json' );
+    
+    foreach ( $files as $file ) {
+        $content = file_get_contents( $file );
+        if ( $content !== false ) {
+            $data = json_decode( $content, true );
+            if ( $data && isset( $data['title'] ) ) {
+                // Buscar y eliminar plantillas existentes
+                $existing_query = new WP_Query(array(
+                    'post_type' => 'elementor_library',
+                    'post_status' => array('publish', 'draft', 'private'),
+                    'title' => $data['title'],
+                    'posts_per_page' => 1,
+                    'fields' => 'ids'
+                ));
+                
+                if ($existing_query->have_posts()) {
+                    $existing_query->the_post();
+                    $post_id = get_the_ID();
+                    wp_delete_post($post_id, true);
+                    error_log('Woo Custom Enhancements: Plantilla eliminada: ' . $data['title'] . ' (ID: ' . $post_id . ')');
+                    wp_reset_postdata();
+                }
+            }
+        }
+    }
+    
+    // Limpiar la marca de importación
+    delete_option( 'woo_custom_enhancements_templates_imported' );
+    
+    // Ejecutar importación
+    woo_custom_enhancements_importar_elementor_templates();
+    
+    // Redirigir de vuelta
+    wp_redirect( admin_url( 'plugins.php?woo_force_reimport_templates=1' ) );
+    exit;
+}
+
 // Mostrar mensajes de resultado en la página de plugins
 add_action( 'admin_notices', 'woo_custom_enhancements_show_admin_messages' );
 
@@ -1030,6 +1152,215 @@ function woo_custom_enhancements_show_admin_messages() {
         </div>
         <?php
     }
+
+    // Mostrar resultado de reimportación forzada
+    if ( isset( $_GET['woo_force_reimport_templates'] ) ) {
+        ?>
+        <div class="notice notice-warning is-dismissible">
+            <h3>⚠️ Reimportación Forzada Completada</h3>
+            <p>Se han eliminado las plantillas existentes y se han vuelto a crear desde cero.</p>
+            <p><strong>💡 Consejo:</strong> Usa el botón "Verificar Plantillas" para ver las plantillas recién creadas.</p>
+        </div>
+        <?php
+    }
+
+    // Mostrar resultado del fix de Elementor
+    if ( isset( $_GET['woo_fix_elementor_success'] ) ) {
+        ?>
+        <div class="notice notice-success is-dismissible">
+            <h3>✅ Fix de Elementor Aplicado</h3>
+            <p>Se ha aplicado el fix de compatibilidad a Elementor Pro. El error de <code>print_content()</code> debería estar solucionado.</p>
+            <p><strong>💡 Consejo:</strong> Prueba ahora a editar una plantilla de productos en Elementor.</p>
+        </div>
+        <?php
+    }
+
+    if ( isset( $_GET['woo_fix_elementor_error'] ) ) {
+        ?>
+        <div class="notice notice-error is-dismissible">
+            <h3>❌ Error al Aplicar Fix de Elementor</h3>
+            <p>No se pudo aplicar el fix de compatibilidad. Verifica que Elementor Pro esté instalado y activo.</p>
+        </div>
+        <?php
+    }
+
+    if ( isset( $_GET['woo_fix_elementor_already'] ) ) {
+        ?>
+        <div class="notice notice-info is-dismissible">
+            <h3>ℹ️ Fix de Elementor Ya Aplicado</h3>
+            <p>El fix de compatibilidad ya está aplicado o no es necesario en tu versión de Elementor.</p>
+        </div>
+        <?php
+    }
 }
 
 // --- FIN: IMPORTACIÓN AUTOMÁTICA DE PLANTILLAS ELEMENTOR ---
+
+// --- INICIA: FIX DE COMPATIBILIDAD ELEMENTOR ---
+
+// Fix para el error de compatibilidad entre Elementor Free y Pro
+add_action('init', 'woo_custom_enhancements_fix_elementor_compatibility', 1);
+function woo_custom_enhancements_fix_elementor_compatibility() {
+    // Verificar si ya se aplicó el fix
+    $fix_applied = get_option('woo_custom_enhancements_elementor_fix_applied', false);
+    
+    // Verificar si existe el archivo problemático
+    $elementor_pro_file = WP_PLUGIN_DIR . '/elementor-pro/modules/loop-builder/skins/skin-loop-base.php';
+    
+    if (file_exists($elementor_pro_file) && !$fix_applied) {
+        // Leer el contenido del archivo
+        $content = file_get_contents($elementor_pro_file);
+        
+        // Buscar la línea problemática
+        if (strpos($content, '$document->print_content();') !== false) {
+            // Aplicar el fix de compatibilidad
+            $fixed_content = str_replace(
+                '$document->print_content();',
+                'if (method_exists($document, \'print_content\')) {
+                    $document->print_content();
+                } elseif (method_exists($document, \'get_content\')) {
+                    echo $document->get_content();
+                }',
+                $content
+            );
+            
+            // Escribir el archivo corregido
+            if (file_put_contents($elementor_pro_file, $fixed_content)) {
+                update_option('woo_custom_enhancements_elementor_fix_applied', true);
+                error_log('Woo Custom Enhancements: Fix de compatibilidad aplicado a Elementor Pro');
+                
+                // Mostrar mensaje de éxito
+                add_action('admin_notices', function() {
+                    ?>
+                    <div class="notice notice-success is-dismissible">
+                        <p><strong>Woo Custom Enhancements:</strong> ✅ Fix de compatibilidad aplicado a Elementor Pro. El error de <code>print_content()</code> ha sido solucionado.</p>
+                    </div>
+                    <?php
+                });
+            }
+        }
+    }
+}
+
+// Función para verificar versiones de Elementor
+add_action('admin_notices', 'woo_custom_enhancements_check_elementor_versions');
+function woo_custom_enhancements_check_elementor_versions() {
+    // Solo mostrar en páginas de admin
+    if (!is_admin()) return;
+    
+    // Verificar si Elementor está activo
+    if (!class_exists('\Elementor\Plugin')) return;
+    
+    $elementor_version = defined('ELEMENTOR_VERSION') ? ELEMENTOR_VERSION : 'No detectada';
+    $elementor_pro_version = defined('ELEMENTOR_PRO_VERSION') ? ELEMENTOR_PRO_VERSION : 'No detectada';
+    
+    // Mostrar información de versiones en la página de plugins
+    if (isset($_GET['page']) && $_GET['page'] === 'plugins.php') {
+        ?>
+        <div class="notice notice-info is-dismissible">
+            <h3>🔍 Información de Versiones de Elementor</h3>
+            <p><strong>Elementor Free:</strong> <?php echo esc_html($elementor_version); ?></p>
+            <p><strong>Elementor Pro:</strong> <?php echo esc_html($elementor_pro_version); ?></p>
+            <?php if ($elementor_version !== 'No detectada' && $elementor_pro_version !== 'No detectada'): ?>
+                <p><strong>Estado:</strong> 
+                    <?php if (version_compare($elementor_version, $elementor_pro_version, '==')): ?>
+                        ✅ Versiones compatibles
+                    <?php else: ?>
+                        ⚠️ Posible incompatibilidad de versiones
+                    <?php endif; ?>
+                </p>
+            <?php endif; ?>
+        </div>
+        <?php
+    }
+}
+
+// --- FIN: FIX DE COMPATIBILIDAD ELEMENTOR ---
+
+// --- INICIA: WIDGET DE ELEMENTOR PARA FILTRO DE CATEGORÍAS ---
+
+// AJAX handler para el filtro de categorías
+add_action('wp_ajax_filter_products_by_category', 'handle_category_filter_ajax');
+add_action('wp_ajax_nopriv_filter_products_by_category', 'handle_category_filter_ajax');
+
+function handle_category_filter_ajax() {
+    // Verificar nonce
+    if (!wp_verify_nonce($_POST['nonce'], 'category_filter_nonce')) {
+        wp_die('Error de seguridad');
+    }
+
+    $category_id = sanitize_text_field($_POST['category_id']);
+    
+    error_log('Filtro de categorías - ID recibido: ' . $category_id);
+    
+    // Determinar la URL de destino
+    if ($category_id === '0' || $category_id === 'all') {
+        // Mostrar todos los productos (página de shop)
+        $url = wc_get_page_permalink('shop');
+        error_log('Filtro de categorías - Redirigiendo a shop: ' . $url);
+    } else {
+        // Mostrar productos de la categoría específica
+        $category = get_term($category_id, 'product_cat');
+        if ($category && !is_wp_error($category)) {
+            $url = get_term_link($category);
+            error_log('Filtro de categorías - Redirigiendo a categoría: ' . $url);
+        } else {
+            $url = wc_get_page_permalink('shop');
+            error_log('Filtro de categorías - Categoría no encontrada, redirigiendo a shop: ' . $url);
+        }
+    }
+
+    // Actualizar la URL en el navegador sin recargar la página
+    wp_send_json_success(array(
+        'redirect' => false,
+        'url' => $url,
+        'message' => 'URL actualizada: ' . $url
+    ));
+}
+
+// --- FIN: FILTRO HORIZONTAL DE CATEGORÍAS CON AJAX ---
+
+// --- INICIA: WIDGET DE ELEMENTOR PARA FILTRO DE CATEGORÍAS ---
+
+// Registrar el widget de Elementor
+add_action('elementor/widgets/register', 'register_category_filter_elementor_widget', 20);
+
+function register_category_filter_elementor_widget($widgets_manager) {
+    // Verificar que el widget manager es válido
+    if (!$widgets_manager || !is_object($widgets_manager)) {
+        error_log('Error: Widget manager no es válido');
+        return;
+    }
+    
+    // Verificar que Elementor está completamente cargado
+    if (!class_exists('\Elementor\Widget_Base') || !class_exists('\Elementor\Controls_Manager')) {
+        error_log('Error: Elementor no está completamente cargado');
+        return;
+    }
+    
+    // Incluir el archivo del widget solo cuando Elementor esté cargado
+    $widget_file = plugin_dir_path(__FILE__) . 'includes/elementor-category-filter-widget.php';
+    if (!file_exists($widget_file)) {
+        error_log('Error: Archivo del widget no encontrado: ' . $widget_file);
+        return;
+    }
+    
+    require_once $widget_file;
+    
+    // Verificar que la clase del widget existe después de incluir el archivo
+    if (!class_exists('Elementor_Category_Filter_Widget')) {
+        error_log('Error: Clase Elementor_Category_Filter_Widget no encontrada después de incluir archivo');
+        return;
+    }
+    
+    // Registrar el widget
+    try {
+        $widget_instance = new Elementor_Category_Filter_Widget();
+        $widgets_manager->register($widget_instance);
+        error_log('Widget de filtro de categorías registrado correctamente');
+    } catch (Exception $e) {
+        error_log('Error al registrar widget: ' . $e->getMessage());
+    }
+}
+
+// --- FIN: WIDGET DE ELEMENTOR PARA FILTRO DE CATEGORÍAS ---

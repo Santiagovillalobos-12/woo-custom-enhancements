@@ -6,9 +6,11 @@ Plugin de WordPress que mejora significativamente la experiencia de WooCommerce 
 
 ### 📊 Sistema de Filtrado y Ordenamiento Avanzado
 - **Shortcode `[sorting_dropdown]`** - Dropdown con contador de resultados
+- **Shortcode `[category_filter_horizontal]`** - Filtro horizontal de categorías con AJAX
 - **Ordenamiento por:** popularidad, valoración, fecha, precio (ascendente/descendente)
 - **Paginación inteligente** que mantiene los filtros activos
 - **Contador de resultados** en tiempo real
+- **Subcategorías con hover** para navegación mejorada
 
 ### 🖼️ Galería de Productos Mejorada
 - **Flechas de navegación** en la galería principal
@@ -72,6 +74,17 @@ git clone https://github.com/Santiagovillalobos-12/woo-custom-enhancements.git
 [hover_product_image]
 ```
 **Ubicación:** En el loop de productos de WooCommerce
+
+#### 3. Filtro Horizontal de Categorías (NUEVO)
+**Widget de Elementor:** "Filtro de Categorías"
+**Ubicación:** En cualquier parte de la página usando Elementor
+**Características:**
+- Filtro horizontal con AJAX (sin recargar página)
+- Muestra número de productos por categoría
+- Dropdown de subcategorías con hover
+- Compatible con Loop Grid de Elementor
+- Personalización completa desde Elementor
+- Funciona en cualquier ubicación de la página
 
 ### Plantillas de Elementor
 
