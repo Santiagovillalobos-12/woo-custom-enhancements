@@ -312,16 +312,36 @@ class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base {
             background: #fff;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            overflow: visible;
+            overflow: visible !important;
             position: relative;
             z-index: 1000;
         }
         .category-filter-horizontal {
             display: flex;
             overflow-x: auto;
-            overflow-y: visible;
+            overflow-y: visible !important;
             scrollbar-width: thin;
             scrollbar-color: #ddd transparent;
+        }
+        
+        /* Forzar que todos los contenedores padre permitan overflow visible */
+        .elementor-widget-category_filter_horizontal {
+            overflow: visible !important;
+        }
+        
+        .elementor-widget-category_filter_horizontal .elementor-widget-container {
+            overflow: visible !important;
+        }
+        
+        .elementor-widget-category_filter_horizontal .elementor-widget-container * {
+            overflow: visible !important;
+        }
+        
+        /* Asegurar que el contenedor del filtro permita que los dropdowns se vean */
+        .category-filter-horizontal-wrapper,
+        .category-filter-horizontal,
+        .category-item {
+            overflow: visible !important;
         }
         .category-filter-horizontal::-webkit-scrollbar { height: 6px; }
         .category-filter-horizontal::-webkit-scrollbar-track { background: #f1f1f1; }
@@ -358,7 +378,7 @@ class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base {
             color: #666;
         }
         .subcategories-dropdown {
-            position: fixed;
+            position: absolute;
             background: #fff;
             border: 1px solid #ddd;
             border-radius: 8px;
@@ -367,10 +387,12 @@ class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base {
             visibility: hidden;
             transform: translateY(-10px);
             transition: all 0.3s;
-            z-index: 9999;
+            z-index: 99999;
             max-height: 400px;
             overflow-y: auto;
             min-width: 200px;
+            top: 100%;
+            left: 0;
         }
         .subcategories-dropdown.active {
             opacity: 1 !important;
@@ -430,19 +452,6 @@ class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base {
 
         <script>
         jQuery(document).ready(function($) {
-            function positionDropdown($item, $dropdown) {
-                var offset = $item.offset();
-                var itemHeight = $item.outerHeight();
-                var dropdownWidth = $dropdown.outerWidth();
-                var left = offset.left;
-                var top = offset.top + itemHeight + 5;
-                if (left + dropdownWidth > $(window).width()) {
-                    left = $(window).width() - dropdownWidth - 20;
-                }
-                if (left < 20) left = 20;
-                $dropdown.css({ left: left + 'px', top: top + 'px' });
-            }
-            
             $('.category-item, .subcategory-item').on('click', function(e) {
                 e.preventDefault();
                 var categoryId = $(this).data('category');
@@ -471,7 +480,6 @@ class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base {
             $('.category-item.has-subcategories').on('mouseenter', function() {
                 var $dropdown = $(this).find('.subcategories-dropdown');
                 $('.subcategories-dropdown').removeClass('active');
-                positionDropdown($(this), $dropdown);
                 $dropdown.addClass('active');
             }).on('mouseleave', function() {
                 var $dropdown = $(this).find('.subcategories-dropdown');
@@ -479,7 +487,7 @@ class Elementor_Category_Filter_Widget extends \Elementor\Widget_Base {
                     if (!$dropdown.is(':hover')) {
                         $dropdown.removeClass('active');
                     }
-                }, 100);
+                }, 200);
             });
             
             $('.subcategories-dropdown').hover(
